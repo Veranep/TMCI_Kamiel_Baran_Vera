@@ -27,6 +27,7 @@ List the dataset(s) you want to use, and some ideas on how do you expect to get,
   * Filter
   * Sample the dataset to theoritize
 * Training the model
+  * Research into which kind of models and approaches exist
   * Decide on a couple of models to experiment with
   * Analyze the data
     * Frequency counts
