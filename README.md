@@ -16,3 +16,6 @@ Add here a sketch of your planning for the coming weeks. Please mention who does
 
 ## Documentation
 This can be added as the project unfolds. You should describe, in particular, what your repo contains and how to reproduce your results.
+
+## Brainstorm
+Start with a pre-processing pipeline, create a base model that works without any extra grammar/language support, use grammar/language support for Dutch <-> English to improve the base model. Two models: one English-Dutch, one Dutch-English. End result: input: word in one language, output: sorted list of most likely translations in the another language.
