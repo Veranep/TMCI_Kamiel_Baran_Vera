@@ -3,7 +3,7 @@
 ## Building a translation model
 
 ## Abstract
-The goal of this project is to create a functioning English-Dutch translation model. The model is trained on data from movie subtitles, by comparing both the English and the Dutch subtitle lines for the same movies. The exact approach with which we will build the translation model is still to be figured out, but it will probably require machine learning techniques such as neural networks. Ideally we want to create a model that can take any Dutch or English word as input, and gives a list of one or several words from the other language that are likely to mean the same. To evaluate the performance of our model, we will compare its output with other existing models that are proven to work.
+The goal of this project is to create a functioning English-Dutch translation model. The model is trained on data from movie subtitles, by comparing both the English and the Dutch subtitle lines for the same movies. The exact approach with which we will build the translation model is still to be figured out. Ideally we want to create a model that can take any Dutch or English word as input, and gives a list of one or several words from the other language that are likely to mean the same. To evaluate the performance of our model, we will compare its output with other existing models that are proven to work.
 
 ## Research questions
 -	How to preprocess our data in a meaningful and helpful way?
