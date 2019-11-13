@@ -34,4 +34,4 @@ We want to use the [OpenSubtitles dataset](http://opus.nlpl.eu/OpenSubtitles-v20
   * Analyze accuracy
 
 ## Documentation
-This can be added as the project unfolds. You should describe, in particular, what your repo contains and how to reproduce your results.
+Since the data file is too big to be uploaded to Git, it should be downloaded [here](http://opus.nlpl.eu/download.php?f=OpenSubtitles/v2018/tmx/en-nl.tmx.gzh) and put in the data folder, before running the .ipynb notebook. The notebook will assume the en-nl.tmx file is in the data folder.
