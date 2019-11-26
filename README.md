@@ -13,15 +13,14 @@ The goal of this project is to create a functioning English-Dutch translation mo
 - How can we evaluate the performance of our model, in comparison to an existing translation model?
 
 ## Dataset
-We want to use the [OpenSubtitles dataset](http://opus.nlpl.eu/OpenSubtitles-v2018.php) on translated movie subtitles. We will first tokenize the dataset per sentence, then lemmatize the tokens and use part-of-speech tagging on them. We will possibly need to filter out punctuation and very unfrequent words, in both languages. We are planning on using the translation memory files (TMX), and to use the files in python the reader provided by the [translate-toolkit](https://github.com/translate/translate).
+We want to use the [OpenSubtitles dataset](http://opus.nlpl.eu/OpenSubtitles-v2018.php) on translated movie subtitles. We will first divide the dataset for easier reading, then pickle it as objects. We will possibly need to filter out punctuation and very unfrequent words, in both languages. Rather than using the .tmx format, we just got the lines in the .pkl format because we don't need all the utilities offered by a .tmx extension
 
 ## A tentative list of milestones for the project
 * Preprocessing
-  * Tokenize
-  * PoS tagging
-  * Lemmatize
+  * Chunk the dataset to smaller bits
+  * Pickle as list objects
   * Filter
-  * Sample the dataset to theoritize
+  * Sample the dataset
 * Training the model
   * Research into which kind of models and approaches exist
   * Decide on a couple of models to experiment with
