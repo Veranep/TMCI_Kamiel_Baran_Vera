@@ -15,10 +15,11 @@
 %% and that of ACL 08 by Joakim Nivre and Noah Smith
 
 \documentclass[11pt]{article}
-\usepackage{acl2014}
+%\usepackage{acl2014}
 \usepackage{times}
 \usepackage{url}
 \usepackage{latexsym}
+\usepackage{hyperref}
 
 %\setlength\titlebox{5cm}
 
@@ -263,6 +264,29 @@ As mentioned above, our dataset was too large to read all of it at once. Therefo
 
 \subsection{Sampling}
 The developing process of models required small samples from the dataset to see the efficiency and quality of the model in a rough manner, before a proper evaluation process. However, just taking a chunk of the dataset would result with a high variation of low amounts of data. Therefore, we created a sampling function, which uses a preset of rules and extracts sentence pairs fitting that rule, then pickles them in another file for usage. This way, the accuracy of the model can be observed faster without an evaluation model on early stages. Also, we cleared the dataset off of some punctuation and transformed uppercase letters to lowercase. This was done to fit our dataset better for our model and remove irrelevant information.
+
+\section{The RNN Encoder-Decoder model}
+While regular neural networks are a powerful tool to train a model, they have one important limitation: they only take inputs of fixed length, and produce outputs of fixed lengths. For the translation of a sequence of words from English to Dutch this is not very useful, because both the length of the input and output sequence will vary between different sentences. We want to train a model that can take in any sentence of arbitrary length, and produce a corresponding translation. The solution to train this kind of model is provided by Recurrent Neural Networks. 
+
+\subsection{Encoder-Decoder}
+An RNN can take in a sequence of any length, and produce any desired output. The key element to do this is the hidden state. To work with an input sequence $\textbf{x} = (x_1,x_2,…,x_t)$, the RNN looks at the elements of the input step by step. In our case, the input is a sentence, and the elements are words. Beginning at the first word, the RNN creates a hidden state, and an output vector y. For each next word, the RNN looks at that word and the previous hidden state, and updates to a new hidden state by
+\begin{center}
+    $\textbf{h}_{(t)} = f(\textbf{h}_{(t-1)},x_{t})$,
+\end{center} 
+\\where f can be any non-linear activation function. In fact, our model tries out two different functions to evaluate which one performs better. After the final word xt has been evaluated, we have the final output vector y, also called context vector. This is the first half of the model, or the Encoder. In this step, the meaning of the English input sentence gets encoded into a vector, thus we have a numerical representation of the input.
+\\In the second step, we decode the context vector into a sentence in Dutch, again by using an RNN. The approach is very similar, just the other way round. The initial hidden state of the decoder is the context vector, and its first input is the <SOS> (start of string) token. At this first step, the decoder also creates its own hidden state. From there, it generates each new word of the output sequence, by looking at its previous output, the context vector, and its own hidden state. Thus the activation function for the decoder looks a bit different: 
+\begin{center}
+    $\textbf{h}_t = f(\textbf{h}_{(t-1)},y_{t-1},\textbf{c})$
+\end{center} 
+\\Finally, it will output a generated sentence in Dutch.
+
+\subsection{Training}
+During the training of the model, both these RNN’s are jointly trained via gradient-descent. The goal of the training is to maximize the probability that our model assigns to each Dutch sentence, given each English sentence. 
+\begin{center}
+    $max \frac{1}{N} \sum_{n=1}^{N} logp_{\theta}(y_n|x_n)$
+\end{center}
+The sentences $y_{n}$ and $x_{n}$ are those that we have from the data. The probability depends on the parameters theta of our model, and is logarithmic for easier summation and to stay within computational bounds.
+\\A large part of this code is not written by ourselves, but we used \href{https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html}{this} code from a Pytorch tutorial. While we do not understand every single line of code, we do have a good general idea of what is going on in each part. We were able to adapt the code a bit, to fit to our dataset. And we were able to interact with the code in various places, to implement some tweaks to the model, as discussed in the next section.
 
 \begin{thebibliography}{}
 
