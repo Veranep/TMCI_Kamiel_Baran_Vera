@@ -15,13 +15,13 @@
 %% and that of ACL 08 by Joakim Nivre and Noah Smith
 
 \documentclass[11pt]{article}
-%\usepackage{acl2014}
+\usepackage{acl2014}
 \usepackage{times}
 \usepackage{url}
 \usepackage{latexsym}
 \usepackage{hyperref}
 
-%\setlength\titlebox{5cm}
+\setlength\titlebox{5cm}
 
 % You can expand the titlebox if you need extra space
 % to show all the authors. Please do not make the titlebox
@@ -273,12 +273,12 @@ An RNN can take in a sequence of any length, and produce any desired output. The
 \begin{center}
     $\textbf{h}_{(t)} = f(\textbf{h}_{(t-1)},x_{t})$,
 \end{center} 
-\\where f can be any non-linear activation function. In fact, our model tries out two different functions to evaluate which one performs better. After the final word xt has been evaluated, we have the final output vector y, also called context vector. This is the first half of the model, or the Encoder. In this step, the meaning of the English input sentence gets encoded into a vector, thus we have a numerical representation of the input.
+where f can be any non-linear activation function. In fact, our model tries out two different functions to evaluate which one performs better. After the final word xt has been evaluated, we have the final output vector y, also called context vector. This is the first half of the model, or the Encoder. In this step, the meaning of the English input sentence gets encoded into a vector, thus we have a numerical representation of the input.
 \\In the second step, we decode the context vector into a sentence in Dutch, again by using an RNN. The approach is very similar, just the other way round. The initial hidden state of the decoder is the context vector, and its first input is the <SOS> (start of string) token. At this first step, the decoder also creates its own hidden state. From there, it generates each new word of the output sequence, by looking at its previous output, the context vector, and its own hidden state. Thus the activation function for the decoder looks a bit different: 
 \begin{center}
     $\textbf{h}_t = f(\textbf{h}_{(t-1)},y_{t-1},\textbf{c})$
 \end{center} 
-\\Finally, it will output a generated sentence in Dutch.
+Finally, it will output a generated sentence in Dutch.
 
 \subsection{Training}
 During the training of the model, both these RNN’s are jointly trained via gradient-descent. The goal of the training is to maximize the probability that our model assigns to each Dutch sentence, given each English sentence. 
