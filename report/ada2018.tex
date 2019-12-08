@@ -43,22 +43,18 @@ Baran İşcanlı \\
 \begin{document}
 \maketitle
 \begin{abstract}
-  This document contains the instructions for preparing a report. The document itself conforms to its own specifications, and is therefore an example of what your manuscript should look like. This document is based on the ACL 2014 paper format.
+  The goal of this project is to create a functioning English-Dutch
+  translation model. The data set contains English and Dutch
+  translations of the same movie subtitles, which will be connected
+  in the translation model to build the translator. The model
+  consists of two Recurrent Neural Networks, an Encoder and a Decoder,
+  which will transform the English input sentence to a tensor, and
+  then to a Dutch output sentence. It is based on a PyTorch
+  implementation, but extended by reversing the input sentences, and
+  using different data formats. Evaluation will be done using the
+  BLEU measure, giving each translated Dutch sentence/text a score
+  out of 1, based on how much it corresponds to the target sentence/text.
 \end{abstract}
-
-\section{Credits}
-
-This document has been adapted from the instructions for earlier ACL
-proceedings, including those for ACL-2012 by Maggie Li and Michael
-White, those from ACL-2010 by Jing-Shing Chang and Philipp Koehn,
-those for ACL-2008 by Johanna D. Moore, Simone Teufel, James Allan,
-and Sadaoki Furui, those for ACL-2005 by Hwee Tou Ng and Kemal
-Oflazer, those for ACL-2002 by Eugene Charniak and Dekang Lin, and
-earlier ACL and EACL formats. Those versions were written by several
-people, including John Chen, Henry S. Thompson and Donald
-Walker. Additional elements were taken from the formatting
-instructions of the {\em International Joint Conference on Artificial
-  Intelligence}.
 
 \section{Introduction}
 
@@ -266,15 +262,15 @@ As mentioned above, our dataset was too large to read all of it at once. Therefo
 The developing process of models required small samples from the dataset to see the efficiency and quality of the model in a rough manner, before a proper evaluation process. However, just taking a chunk of the dataset would result with a high variation of low amounts of data. Therefore, we created a sampling function, which uses a preset of rules and extracts sentence pairs fitting that rule, then pickles them in another file for usage. This way, the accuracy of the model can be observed faster without an evaluation model on early stages. Also, we cleared the dataset off of some punctuation and transformed uppercase letters to lowercase. This was done to fit our dataset better for our model and remove irrelevant information.
 
 \section{The RNN Encoder-Decoder model}
-While regular neural networks are a powerful tool to train a model, they have one important limitation: they only take inputs of fixed length, and produce outputs of fixed lengths. For the translation of a sequence of words from English to Dutch this is not very useful, because both the length of the input and output sequence will vary between different sentences. We want to train a model that can take in any sentence of arbitrary length, and produce a corresponding translation. The solution to train this kind of model is provided by Recurrent Neural Networks. 
+While regular neural networks are a powerful tool to train a model, they have one important limitation: they only take inputs of fixed length, and produce outputs of fixed lengths. For the translation of a sequence of words from English to Dutch this is not very useful, because both the length of the input and output sequence will vary between different sentences. We want to train a model that can take in any sentence of arbitrary length, and produce a corresponding translation. The solution to train this kind of model is provided by Recurrent Neural Networks (Bahdanau, 2014) (Sutskever, 2014) (Cho, 2014). 
 
 \subsection{Encoder-Decoder}
 An RNN can take in a sequence of any length, and produce any desired output. The key element to do this is the hidden state. To work with an input sequence $\textbf{x} = (x_1,x_2,…,x_t)$, the RNN looks at the elements of the input step by step. In our case, the input is a sentence, and the elements are words. Beginning at the first word, the RNN creates a hidden state, and an output vector y. For each next word, the RNN looks at that word and the previous hidden state, and updates to a new hidden state by
 \begin{center}
     $\textbf{h}_{(t)} = f(\textbf{h}_{(t-1)},x_{t})$,
 \end{center} 
-where f can be any non-linear activation function. In fact, our model tries out two different functions to evaluate which one performs better. After the final word xt has been evaluated, we have the final output vector y, also called context vector. This is the first half of the model, or the Encoder. In this step, the meaning of the English input sentence gets encoded into a vector, thus we have a numerical representation of the input.
-\\In the second step, we decode the context vector into a sentence in Dutch, again by using an RNN. The approach is very similar, just the other way round. The initial hidden state of the decoder is the context vector, and its first input is the <SOS> (start of string) token. At this first step, the decoder also creates its own hidden state. From there, it generates each new word of the output sequence, by looking at its previous output, the context vector, and its own hidden state. Thus the activation function for the decoder looks a bit different: 
+where f can be any non-linear activation function. After the final word $x_t$ has been evaluated, we have the final output vector $y$, also called context vector. This is the first half of the model, or the Encoder. In this step, the meaning of the English input sentence gets encoded into a vector, thus we have a numerical representation of the input.
+\\In the second step, we decode the context vector into a sentence in Dutch, again by using an RNN. The approach is very similar, just the other way round. The initial hidden state of the decoder is the context vector, and its first input is the <SOS> (start of sentence) token. At this first step, the decoder also creates its own hidden state. From there, it generates each new word of the output sequence, by looking at its previous output, the context vector, and its own hidden state. Thus the activation function for the decoder looks a bit different: 
 \begin{center}
     $\textbf{h}_t = f(\textbf{h}_{(t-1)},y_{t-1},\textbf{c})$
 \end{center} 
@@ -286,39 +282,71 @@ During the training of the model, both these RNN’s are jointly trained via gra
     $max \frac{1}{N} \sum_{n=1}^{N} logp_{\theta}(y_n|x_n)$
 \end{center}
 The sentences $y_{n}$ and $x_{n}$ are those that we have from the data. The probability depends on the parameters theta of our model, and is logarithmic for easier summation and to stay within computational bounds.
-\\A large part of this code is not written by ourselves, but we used \href{https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html}{this} code from a Pytorch tutorial. While we do not understand every single line of code, we do have a good general idea of what is going on in each part. We were able to adapt the code a bit, to fit to our dataset. And we were able to interact with the code in various places, to implement some tweaks to the model, as discussed in the next section.
+\\We used \href{https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html}{an implementation from a PyTorch tutorial} (PyTorch, 2017) as the basis for our model. First we spend time understanding the code and we have a good general idea of what is going on in each part. Then we looked into adapting the code to our needs, and have it fit to our dataset. We were able to interact with the code in various places as well, to implement some tweaks to the model, as discussed in the next section.
+
+\subsection{Changes to the model}
+When implementing the changes to the model we used a small sample from the dataset with sentences that are similar in grammar. We looked at the BLEU score computed after evaluating the trained model, which was compared to the one for the base model: 0.01850195563099788. We implemented and evaluated the following changes/tweaks to the PyTorch implementation:
+
+\subsubsection*{Attention}
+Score: 0.025010259173115005
+\\When using a regular decoder, the output vector from the encoder is all the decoder has to learn from and to base its translation on. This means the full input sentence and its meaning is now represented by one vector only.
+\\When using a decoder with attention mechanism, however, for each word that the decoder outputs, it is provided with a set of attention weights, computed by the encoder. These weights tell the decoder which parts of the input vector are important to translate the word, for example a noun will be important information for translating the article that comes before it. This set of attention weights will be multiplied with the output vector from the encoder, to create a vector of weighted inputs for the decoder. The maximum length of the input sentences, output vectors for the encoder, needs to be specified before training the model, to make sure the set of weights has the right length for the longest sentence or sentences in the data. For shorter sentences not all weights will be used (PyTorch, 2017) (Bahdanau, 2014). 
+
+\subsubsection*{Teacher Forcing}
+Score: 0.046145425840054884
+\\Teacher forcing is used in training the model, where instead of the last output from the decoder, on which the decoder would usually base its next prediction, the target tensor is fed to the decoder. As a result of this, translations that were made using teacher forcing have correct grammar, but are usually very different in meaning from the correct translation. Since the model is used to getting the first few words provided by the teacher, when it does not get these in the evaluation phase it does not know how to starting creating the output sentence (PyTorch, 2017) (Jaeger, 2002).
+
+\subsubsection*{Reversing the input}
+Score: 0.02149697704632642
+\\Reversing the input (source) sentences when feeding them to the model to train has proven by \newcite{Sutskever:2014} to decrease the distance between words in the source and in the target language. In other words, long-term dependencies are being replaced by short-term dependencies. This results in a higher probability of two words, each from a different language, which context is depended on each other to be close in distance.
+
+\subsubsection*{Activation functions}
+Score: 0.0
+\\At first we tried to implement the log sigmoid and leaky relu activation functions, but in the original log softmax activation function a dimension was specified, which could not be specified for the log sigmoid and leaky relu activation functions. This had as a result that the output sentences did not show any signs of the model having trained, but instead only contained sequences of the word 'ik' and 'ik ben', apparently the only words the model had learned.
+\\Since this did not work out we tried using activation functions for which the dimension could be specified, namely the softmax and softmin activation functions. For these functions, however, the output sentences for each input consisted of similar words, and all output sentences were of the maximum length specified for the input and output sentences. Even training with more iterations did not change this. We think that the fact that no other activation function worked has to do with the way the model from the PyTorch implementation was set up, and that trying different activation functions is justified from a theoretical viewpoint (PyTorch, 2017).
+
+\subsubsection*{Different NN units}
+We considered changing the linear units that make up the RNN in the Pytorch implementation into RNN or LSTM units, but since Pytorch created a custom RNN from the linear unit specific for this implementation, it did not work and did not make sense to change the linear unit.
+
+\subsubsection*{}
+We have decided to implement all the changes that improved the evaluation score, which were the attention mechanism, teacher forcing, and reversing the input sentences.
+
+\section{Evaluation}
+To evaluate the performances of our model we chose to write our own implementation of the widely used BLEU score. The BLEU score takes all the n-grams up until the specified n and calculates the amount of similarities between two sentences, where for each n-gram each word can only be used once to count towards a match with the other sentence. To calculate the BLEU score over a set of sentences, the geometric mean of the scores for each individual sentence is used (Papineni, 2002).
 
 \begin{thebibliography}{}
 
-\bibitem[\protect\citename{Aho and Ullman}1972]{Aho:72}
-Alfred~V. Aho and Jeffrey~D. Ullman.
-\newblock 1972.
-\newblock {\em The Theory of Parsing, Translation and Compiling}, volume~1.
-\newblock Prentice-{Hall}, Englewood Cliffs, NJ.
+\bibitem[\protect\citename{Bahdanau \bgroup et al.\egroup}2014]{Bahdanau:2014}
+D. Bahdanau, K. Cho, Y. Bengio.
+\newblock 2014.
+\newblock {\em Neural machine translation by jointly learning to align and translate.}
+\newblock Retrieved from the arXiv database.
 
-\bibitem[\protect\citename{{American Psychological Association}}1983]{APA:83}
-{American Psychological Association}.
-\newblock 1983.
-\newblock {\em Publications Manual}.
-\newblock American Psychological Association, Washington, DC.
+\bibitem[\protect\citename{Cho \bgroup et al.\egroup}2014]{Cho:2014}
+K. Cho, B. van Merrienboer, C. Gulcehre, D. Bahdanau, F. Bougares, H. Schwenk, Y. Bengio.
+\newblock 2014.
+\newblock {\em Learning phrase representations using RNN encoder-decoder for statistical machine translation.}
+\newblock Retrieved from the arXiv database.
 
-\bibitem[\protect\citename{{Association for Computing Machinery}}1983]{ACM:83}
-{Association for Computing Machinery}.
-\newblock 1983.
-\newblock {\em Computing Reviews}, 24(11):503--512.
+\bibitem[\protect\citename{Jaeger}2002]{Jaeger:2002}
+H. Jaeger.
+\newblock 2002.
+\newblock {\em A tutorial on training recurrent neural networks, covering BPPT, RTRL, EKF and the "echo state network" approach}
 
-\bibitem[\protect\citename{Chandra \bgroup et al.\egroup }1981]{Chandra:81}
-Ashok~K. Chandra, Dexter~C. Kozen, and Larry~J. Stockmeyer.
-\newblock 1981.
-\newblock Alternation.
-\newblock {\em Journal of the Association for Computing Machinery},
-  28(1):114--133.
+\bibitem[\protect\citename{Papineni \bgroup et al.\egroup}2002]{Papineni:2002}
+K. Papineni, S. Roukos, T. Ward, W. Zhu.
+\newblock 2002
+\newblock {\em BLEU: a Method for Automatic Evaluation of Machine Translation}
+\newblock Proceedings of the 40th Annual Meeting of the Association for Computational Linguistics (ACL)
 
-\bibitem[\protect\citename{Gusfield}1997]{Gusfield:97}
-Dan Gusfield.
-\newblock 1997.
-\newblock {\em Algorithms on Strings, Trees and Sequences}.
-\newblock Cambridge University Press, Cambridge, UK.
+\bibitem[\protect\citename{PyTorch}2017]{PyTorch:17}
+\newblock {\em NLP From Scratch: Translation with a Sequence to Sequence Network and Attention}
+
+\bibitem[\protect\citename{Sutskever \bgroup et al.\egroup}2014]{Sutskever:2014}
+I. Sutskever, O. Vinyals, Q. Le.
+\newblock 2014.
+\newblock {\em Sequence to sequence learning with neural networks.}
+\newblock Retrieved from the arXiv database.
 
 \end{thebibliography}
 
