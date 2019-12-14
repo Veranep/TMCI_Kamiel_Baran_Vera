@@ -3,34 +3,35 @@
 ## Building a translation model
 
 ## Abstract
-The goal of this project is to create a functioning English-Dutch translation model. The model is trained on data from movie subtitles, by comparing both the English and the Dutch subtitle lines for the same movies. The exact approach with which we will build the translation model is still to be figured out. Ideally we want to create a model that can take any Dutch or English word as input, and gives a list of one or several words from the other language that are likely to mean the same. To evaluate the performance of our model, we will compare its output with other existing models that are proven to work.
+The goal of this project is to create a functioning English-Dutch translation model. The data set contains English and Dutch translations of the same movie subtitles, which will be connected in the translation model to build the translator. The model consists of two Recurrent Neural Networks, an Encoder and a Decoder, which will transform the English input sentence to a tensor, and then to a Dutch output sentence. It is based on a PyTorch implementation, but extended by reversing the input sentences, and using different data formats. Evaluation will be done using the BLEU measure, giving each translated Dutch sentence/text a score out of 1, based on how much it corresponds to the target sentence/text.
 
 ## Research questions
 -	How to preprocess our data in a meaningful and helpful way?
 -	What is a suitable approach to making a translation model?
--	How can machine learning techniques be applied to enhance our model?
+-	How can machine learning techniques be applied to train our model?
 -	How to implement this approach into code that works with our data?
-- How can we evaluate the performance of our model, in comparison to an existing translation model?
+- 	How can we evaluate the performance of our model?
 
 ## Dataset
-We want to use the [OpenSubtitles dataset](http://opus.nlpl.eu/OpenSubtitles-v2018.php) on translated movie subtitles. We will first divide the dataset for easier reading, then pickle it as objects. We will possibly need to filter out punctuation and very unfrequent words, in both languages. Rather than using the .tmx format, we just got the lines in the .pkl format because we don't need all the utilities offered by a .tmx extension
+We used the [OpenSubtitles dataset](http://opus.nlpl.eu/OpenSubtitles-v2018.php) on translated movie subtitles. It consists of 3GB of English Dutch sentence pairs. But we did not use the whole dataset, due to the long training time. We filtered the sentence pairs to be no longer than 15 words, and the English sentence starting with [I, you, he, she, it, we, they] followed by [is, are, am, have, has, were, had] for less grammatical variance and more focused training. 20% of these filtered sentence pairs were reserved for training.
 
-## A tentative list of milestones for the project
+## A final list of milestones for the project
 * Preprocessing
-  * Chunk the dataset to smaller bits
-  * Pickle as list objects
-  * Filter
-  * Sample the dataset
-* Training the model
-  * Research into which kind of models and approaches exist
-  * Decide on a couple of models to experiment with
-  * Analyze the data
-    * Frequency counts
-    * N-grams
-    * Choose the most suitable model
+  * Chunk into bits and pickle the dataset as list objects (Baran)
+  * Filtering on grammatical structure (Baran)
+* Making the model
+  * Research into which kind of models and approaches exist (Kamiel)
+  * Implement the Sequence to Sequence Network code from [Pytorch]( https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html) (Kamiel)
+  * Find a few ways to alter and enhance this standard model (Vera)
+  * Training the model over our data (Baran and Vera)
 * Evaluating
-  * Compare the results of model with an existing gold standard
-  * Analyze accuracy
+  * Find a suitable evaluation measure for translation (Vera)
+  * Implement it in code (Vera)
+* Writing the report
+  * Introduction, the model, discussion, conclusion (Kamiel)
+  * Preprocessing and dataset (Baran)
+  * Tweaks to the model, evaluation (Vera)
 
 ## Documentation
-Since the data file is too big to be uploaded to Git, it should be downloaded [here](http://opus.nlpl.eu/download.php?f=OpenSubtitles/v2018/tmx/en-nl.tmx.gz) and put in the data folder, before running the .ipynb notebook. The notebook will assume the en-nl.tmx file is in the data folder.
+Since the data file is too big to be uploaded to Git, it can be downloaded [here](http://opus.nlpl.eu/download.php?f=OpenSubtitles/v2018/tmx/en-nl.tmx.gz).
+Our repository contains two ipython notebooks. One contains all the code to read in, preprocess and filter the data. The other contains the bulk of the code, with the basis code to create the translation model, the enhancements that we implemented, commands to perform the training, and evaluation.
